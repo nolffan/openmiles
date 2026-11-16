@@ -118,8 +118,14 @@ const win32 = if (builtin.os.tag == .windows) struct {
 } else struct {};
 
 pub fn handleFromStreamName(name: []const u8) ?*anyopaque {
-    if (name.len < 3 or name[0] != '\\' or name[1] != '\\') return null;
-    const n = std.fmt.parseInt(u32, name[2..], 10) catch return null;
+    // Two backslashes, or four: NOLF's LithTech engine writes "\\<n>", and
+    // AvP2's and Primal Hunt's write "\\\\<n>" (their lithtech.exe's format
+    // string is four backslash characters and "%d"), which Miles 6 accepts too.
+    var lead: usize = 0;
+    while (lead < name.len and name[lead] == '\\') lead += 1;
+    if (lead != 2 and lead != 4) return null;
+    if (name.len <= lead) return null;
+    const n = std.fmt.parseInt(u32, name[lead..], 10) catch return null;
     if (n == 0) return null;
     return @ptrFromInt(n);
 }

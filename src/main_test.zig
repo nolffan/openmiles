@@ -9622,6 +9622,10 @@ test "Miles 6 pan: the far side is its distance from the edge over 64.5 (6.0i, m
 test "a \\\\<handle> stream name parses to its handle, anything else does not" {
     // Miles names an already-open Win32 file handle as "\\<n>", n in decimal.
     try testing.expectEqual(@as(usize, 420), @intFromPtr(api_stream.handleFromStreamName("\\\\420").?));
+    // AvP2's and Primal Hunt's engines write four backslashes.
+    try testing.expectEqual(@as(usize, 528), @intFromPtr(api_stream.handleFromStreamName("\\\\\\\\528").?));
+    try testing.expectEqual(@as(?*anyopaque, null), api_stream.handleFromStreamName("\\\\\\528"));
+    try testing.expectEqual(@as(?*anyopaque, null), api_stream.handleFromStreamName("\\\\\\\\"));
     try testing.expectEqual(@as(?*anyopaque, null), api_stream.handleFromStreamName("\\\\0"));
     try testing.expectEqual(@as(?*anyopaque, null), api_stream.handleFromStreamName("\\\\"));
     try testing.expectEqual(@as(?*anyopaque, null), api_stream.handleFromStreamName("\\\\12ab"));
