@@ -263,6 +263,12 @@ test "coverage: 3d.zig exports" {
     try testing.expectEqual(@as(f32, 0.0), td.AIL_3D_rolloff_factor(null));
     _ = td.AIL_active_3D_sample_count(drv);
     td.AIL_3D_provider_attribute(dp, "x", sc());
+    var max_samples: i32 = 1;
+    td.AIL_3D_provider_attribute(dp, "Maximum supported samples", @ptrCast(&max_samples));
+    try testing.expectEqual(td.max_3d_samples, max_samples);
+    var eax_env: i32 = 0;
+    td.AIL_3D_provider_attribute(dp, "EAX environment selection", @ptrCast(&eax_env));
+    try testing.expectEqual(@as(i32, -1), eax_env);
     _ = td.AIL_set_3D_provider_preference(dp, "x", sc());
     next = null;
     _ = td.AIL_enumerate_3D_provider_attributes(dp, &next, &namep);

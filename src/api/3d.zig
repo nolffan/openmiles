@@ -603,8 +603,23 @@ pub fn AIL_3D_provider_attribute(provider: *anyopaque, name: [*:0]const u8, val:
     } else if (std.mem.eql(u8, n, "Distance factor")) {
         const v: *f32 = @ptrCast(@alignCast(val));
         v.* = dig.distance_factor;
+    } else if (std.mem.eql(u8, n, "Maximum supported samples")) {
+        // How many 3D sample handles the provider can play at once. Games
+        // size their 3D voice pool from it (LithTech Talon's sound manager,
+        // AvP2), reading it into an uninitialised local: left unanswered,
+        // the pool was whatever the stack held -- one voice, so one sound
+        // at a time. OpenMiles mixes any number; report the software
+        // mixer's default channel count.
+        const v: *i32 = @ptrCast(@alignCast(val));
+        v.* = max_3d_samples;
+    } else if (std.mem.eql(u8, n, "EAX environment selection")) {
+        // -1: no EAX (games test the attribute against -1 to detect EAX).
+        const v: *i32 = @ptrCast(@alignCast(val));
+        v.* = -1;
     }
 }
+/// What "Maximum supported samples" reports (DIG_MIXER_CHANNELS' default).
+pub const max_3d_samples: i32 = 64;
 pub fn AIL_set_3D_provider_preference(provider: *anyopaque, name: [*:0]const u8, val: *anyopaque) callconv(.winapi) void {
     const dig = providerDriver(provider) orelse return;
     const n = std.mem.span(name);
